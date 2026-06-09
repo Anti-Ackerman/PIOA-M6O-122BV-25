@@ -57,17 +57,10 @@ PIOA-M6O-122BV-25/
 ## Запуск тестирования
     pytest --cov=src --cov-report=term-missing
     
+## Результаты тестов
 
-### Тесты
-  Name                         Stmts   Miss  Cover   Missing
-  ----------------------------------------------------------
-  src/db/__init__.py               0      0   100%
-  src/db/__main__.py               4      4     0%   1-5
-  src/db/backend/__init__.py       0      0   100%
-  src/db/backend/memory.py        99      3    97%   51, 66, 78
-  src/db/tui.py                  201     20    90%   15, 44, 50-51, 106-107, 111-112, 117-118, 120-124, 128, 146-147, 177, 231-232
-  ----------------------------------------------------------
-  TOTAL                          304     27    91%
+<img width="911" height="182" alt="Снимок экрана 2026-06-09 в 06 18 08" src="https://github.com/user-attachments/assets/c037101e-22ff-4195-b369-1e7683b46e49" />
+
 
 ## Запуск программы
     python -m src.db

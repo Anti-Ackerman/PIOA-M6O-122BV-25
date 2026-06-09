@@ -65,6 +65,7 @@ def _table_management() -> str | None:
         print("2. Удалить таблицу")
         print("3. Показать все таблицы")
         print("4. Выбрать таблицу для работы")
+        print("0. Назад в главное меню")
         choice = input("Выберите действие: ").strip()
         if choice == "1":
             name = _get_non_empty("Имя новой таблицы: ")
@@ -100,6 +101,8 @@ def _table_management() -> str | None:
                 return name
             else:
                 print(f"Таблица '{name}' не найдена.")
+        elif choice == "0":
+            return None
         else:
             print("Неверный ввод.")
 
@@ -174,7 +177,7 @@ def run() -> None:
         print("\n" + "=" * 30)
         print("ГЛАВНОЕ МЕНЮ")
         print("1. Управление таблицами")
-        print("2. Работа с данными (выбрать таблицу)")
+        print("2. Работа с таблицей")
         print("0. Выход")
         main_choice = input("Выберите действие: ").strip()
         if main_choice == "1":

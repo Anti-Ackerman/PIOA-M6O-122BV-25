@@ -13,14 +13,14 @@ class Database:
             raise ValueError(f"Таблица '{table_name}' уже существует.")
         self._tables[table_name] = {}
         self._next_ids[table_name] = 1
-        print(f"✓ Таблица '{table_name}' создана.")
+        print(f"Таблица '{table_name}' создана.")
 
     def drop_table(self, table_name: str) -> None:
         if table_name not in self._tables:
             raise ValueError(f"Таблица '{table_name}' не существует.")
         del self._tables[table_name]
         del self._next_ids[table_name]
-        print(f"✓ Таблица '{table_name}' удалена.")
+        print(f"Таблица '{table_name}' удалена.")
 
     def get_table_names(self) -> list[str]:
         return list(self._tables.keys())

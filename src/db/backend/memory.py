@@ -85,3 +85,27 @@ class Database:
                 del table[rid]
                 count += 1
         return count
+    
+    def sort_records(self, table_name: str, key: str, reverse: bool = False) -> list[Record]:
+        if table_name not in self._tables:
+            raise ValueError(f"Таблица '{table_name}' не существует.")
+        records = list(self._tables[table_name].values())
+        if not records:
+            return []   
+        default_value = None
+        for rec in records:
+            if key in rec:
+                val = rec[key]
+                if isinstance(val, (int, float)):
+                    default_value = 0
+                else:
+                    default_value = ""
+                break
+        if default_value is None:
+            default_value = ""
+        def sort_key(record: Record):
+            val = record.get(key)
+            if val is None:
+                return default_value
+            return val
+        return sorted(records, key=sort_key, reverse=reverse)

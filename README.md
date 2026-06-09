@@ -47,3 +47,4 @@ PIOA-M6O-122BV-25/
 
 ## Запуск
     python -m src.db
+    python3 -m src.db

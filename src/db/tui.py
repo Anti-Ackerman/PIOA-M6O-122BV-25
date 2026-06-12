@@ -25,9 +25,24 @@ class CarDatabaseUI:
             print("0. Выход")
             choice = input("Выберите действие: ").strip()
             if choice == "1":
-                self._table_management()
+                name = self._get_non_empty("Имя новой таблицы: ")
+                try:
+                    self.db.create_table(name)
+                    print(f"Таблица '{name}' создана.")   
+                except ValueError as e:
+                    print(e)
             elif choice == "2":
-                self._choose_and_work_with_table()
+                tables = self.db.get_table_names()
+                if not tables:
+                    print("Нет таблиц.")
+                    continue
+                print("Доступные:", ", ".join(tables))
+                name = input("Имя таблицы для удаления: ").strip()
+                try:
+                    self.db.drop_table(name)
+                    print(f"Таблица '{name}' удалена.")  
+                except ValueError as e:
+                    print(e)
             elif choice == "3":
                 self._sort_table()
             elif choice == "0":

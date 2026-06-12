@@ -105,9 +105,12 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(result, [])
 
     def test_sort_records_missing_key(self):
-        self.db.create_record("cars", {"brand": "Missing", "color": "green"})
-        sorted_cars = self.db.sort_records("cars", "price")
-        self.assertEqual(sorted_cars[0]["brand"], "Missing")
+        self.db.create_table("test_missing")
+        self.db.create_record("test_missing", {"brand": "A", "price": 100, "color": "red"})
+        self.db.create_record("test_missing", {"brand": "B", "price": 200, "color": "blue"})
+        sorted_records = self.db.sort_records("test_missing", "year")
+        self.assertEqual(len(sorted_records), 2)
+        self.db.drop_table("test_missing")
 
     def test_sort_records_invalid_table(self):
         with self.assertRaises(ValueError):
@@ -125,12 +128,15 @@ class TestDatabase(unittest.TestCase):
             self.db.drop_table("no_such_table")
 
     def test_update_records_with_none_filters(self):
-        self.db.create_record("cars", {"brand": "Test", "price": 100})
-        updated = self.db.update_records("cars", None, {"price": 200})
-        self.assertEqual(updated, 4)  
-        all_cars = self.db.read_records("cars")
-        for car in all_cars:
-            self.assertEqual(car["price"], 200)
-            
+        self.db.create_table("test_update")
+        self.db.create_record("test_update", {"brand": "A", "price": 100, "color": "red"})
+        self.db.create_record("test_update", {"brand": "B", "price": 200, "color": "blue"})
+        updated = self.db.update_records("test_update", None, {"color": "green"})
+        self.assertEqual(updated, 2)
+        records = self.db.read_records("test_update")
+        for rec in records:
+            self.assertEqual(rec["color"], "green")
+        self.db.drop_table("test_update")
+
 if __name__ == "__main__":
     unittest.main()

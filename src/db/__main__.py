@@ -1,7 +1,5 @@
-from .tui import run
-
-def main():
-    run()
+from .tui import CarDatabaseUI
 
 if __name__ == "__main__":
-    main()
+    app = CarDatabaseUI()
+    app.run()

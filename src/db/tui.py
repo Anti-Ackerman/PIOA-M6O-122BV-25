@@ -1,48 +1,51 @@
-from .backend.memory import Database, Record
+from .backend.memory import Database as MemoryDatabase
+from .backend.file import FileDatabase
+from .backend.csv_file import CsvFileDatabase
 
 class CarDatabaseUI:
+    def __init__(self, db_instance=None):
+        if db_instance is not None:
+            self.db = db_instance
+            self.storage_type = type(db_instance).__name__
+        else:
+            print("Выберите тип базы данных:")
+            print("1. In‑memory (данные не сохраняются)")
+            print("2. File (JSON, папка 'data')")
+            print("3. CSV (папка 'csv_data')")
+            choice = input("Введите 1, 2 или 3: ").strip()
+            if choice == "2":
+                self.db = FileDatabase()
+                self.storage_type = "файловая (JSON)"
+            elif choice == "3":
+                self.db = CsvFileDatabase()
+                self.storage_type = "файловая (CSV)"
+            else:
+                self.db = MemoryDatabase()
+                self.storage_type = "in‑memory"
+            try:
+                self.db.create_table("cars")
+                print("Таблица 'cars' готова.")
+            except Exception:
+                print("Таблица 'cars' уже существует.")
 
-    def __init__(self):
-        self.db = Database()
-        self.fields = ["brand", "price", "color"] 
+        self.fields = ["brand", "price", "color"]
 
     def run(self):
         print("=" * 50)
-        print("   Добро пожаловать в БД АВТОМОБИЛЕЙ (in-memory)")
+        print(f"   Добро пожаловать в БД АВТОМОБИЛЕЙ ({self.storage_type})")
         print("=" * 50)
-        try:
-            self.db.create_table("cars")
-            print("Автоматически создана таблица 'cars' с полями: brand, price, color")
-        except ValueError:
-            print("Таблица 'cars' уже существует.")
-
         while True:
             print("\n" + "=" * 30)
             print("ГЛАВНОЕ МЕНЮ")
             print("1. Управление таблицами")
             print("2. Работа с таблицей")
-            print("3. Сортировка записей")  
+            print("3. Сортировка записей")
             print("0. Выход")
             choice = input("Выберите действие: ").strip()
             if choice == "1":
-                name = self._get_non_empty("Имя новой таблицы: ")
-                try:
-                    self.db.create_table(name)
-                    print(f"Таблица '{name}' создана.")   
-                except ValueError as e:
-                    print(e)
+                self._table_management()
             elif choice == "2":
-                tables = self.db.get_table_names()
-                if not tables:
-                    print("Нет таблиц.")
-                    continue
-                print("Доступные:", ", ".join(tables))
-                name = input("Имя таблицы для удаления: ").strip()
-                try:
-                    self.db.drop_table(name)
-                    print(f"Таблица '{name}' удалена.")  
-                except ValueError as e:
-                    print(e)
+                self._choose_and_work_with_table()
             elif choice == "3":
                 self._sort_table()
             elif choice == "0":
@@ -65,7 +68,7 @@ class CarDatabaseUI:
             except ValueError:
                 print("Ошибка: введите целое число.")
 
-    def _get_filters(self) -> Record:
+    def _get_filters(self):
         print("\nВведите критерии поиска (Enter - пропустить):")
         filters = {}
         for f in self.fields:
@@ -82,7 +85,7 @@ class CarDatabaseUI:
                     filters[f] = val
         return filters
 
-    def _get_data(self) -> Record:
+    def _get_data(self):
         print("\nВведите данные автомобиля:")
         data = {}
         for f in self.fields:
@@ -92,7 +95,7 @@ class CarDatabaseUI:
                 data[f] = self._get_non_empty(f"{f}: ")
         return data
 
-    def _print_records(self, records: list[Record]) -> None:
+    def _print_records(self, records):
         if not records:
             print("\nАвтомобили не найдены.")
             return
@@ -106,7 +109,7 @@ class CarDatabaseUI:
                   f"{r.get('color', '-'):<10}")
         print("=" * 50)
 
-    def _table_management(self) -> None:
+    def _table_management(self):
         while True:
             print("\n--- Управление таблицами ---")
             print("1. Создать таблицу")
@@ -118,7 +121,8 @@ class CarDatabaseUI:
                 name = self._get_non_empty("Имя новой таблицы: ")
                 try:
                     self.db.create_table(name)
-                except ValueError as e:
+                    print(f"Таблица '{name}' создана.")
+                except Exception as e:
                     print(e)
             elif choice == "2":
                 tables = self.db.get_table_names()
@@ -129,7 +133,8 @@ class CarDatabaseUI:
                 name = input("Имя таблицы для удаления: ").strip()
                 try:
                     self.db.drop_table(name)
-                except ValueError as e:
+                    print(f"Таблица '{name}' удалена.")
+                except Exception as e:
                     print(e)
             elif choice == "3":
                 tables = self.db.get_table_names()
@@ -142,7 +147,7 @@ class CarDatabaseUI:
             else:
                 print("Неверный ввод.")
 
-    def _work_with_table(self, table_name: str) -> None:
+    def _work_with_table(self, table_name: str):
         while True:
             print(f"\n--- Работа с таблицей '{table_name}' (автомобили) ---")
             print("1. Добавить автомобиль")
@@ -158,7 +163,7 @@ class CarDatabaseUI:
                     data = self._get_data()
                     rec = self.db.create_record(table_name, data)
                     print(f"Добавлен: ID={rec['id']}, {rec['brand']}, {rec['price']} руб., {rec['color']}")
-                except ValueError as e:
+                except Exception as e:
                     print(e)
             elif choice == "2":
                 filters = self._get_filters()
@@ -200,7 +205,7 @@ class CarDatabaseUI:
             else:
                 print("Неверный ввод.")
 
-    def _choose_and_work_with_table(self) -> None:
+    def _choose_and_work_with_table(self):
         tables = self.db.get_table_names()
         if not tables:
             print("Нет таблиц. Сначала создайте таблицу через пункт 1.")
@@ -212,7 +217,7 @@ class CarDatabaseUI:
         else:
             print(f"Таблица '{name}' не найдена.")
 
-    def _sort_table(self) -> None:
+    def _sort_table(self):
         tables = self.db.get_table_names()
         if not tables:
             print("Нет таблиц для сортировки.")
@@ -222,26 +227,21 @@ class CarDatabaseUI:
         if table_name not in tables:
             print("Таблица не найдена.")
             return
-
         records = self.db.read_records(table_name)
         if not records:
             print("Таблица пуста, нечего сортировать.")
             return
-
-        sample = records[0] 
+        sample = records[0]
         available_fields = [key for key in sample.keys() if key != 'id']
         print("Доступные поля для сортировки:", ", ".join(available_fields))
-
         key = input("Поле для сортировки: ").strip()
         if key not in available_fields:
             print("Недопустимое поле.")
             return
-
         rev_input = input("По убыванию? (y/N): ").strip().lower()
         reverse = (rev_input == 'y')
-
         try:
             sorted_records = self.db.sort_records(table_name, key, reverse)
             self._print_records(sorted_records)
-        except ValueError as e:
+        except Exception as e:
             print(e)
